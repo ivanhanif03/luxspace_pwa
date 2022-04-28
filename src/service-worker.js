@@ -7,11 +7,12 @@
 // You can also remove this file if you'd prefer not to use a
 // service worker, and the Workbox build step will be skipped.
 
+import { __SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED } from 'react-dom';
 import { clientsClaim } from 'workbox-core';
 import { ExpirationPlugin } from 'workbox-expiration';
 import { precacheAndRoute, createHandlerBoundToURL } from 'workbox-precaching';
 import { registerRoute } from 'workbox-routing';
-import { StaleWhileRevalidate } from 'workbox-strategies';
+import { NetworkFirst, StaleWhileRevalidate } from 'workbox-strategies';
 
 clientsClaim();
 
@@ -60,6 +61,23 @@ registerRoute(
     ],
   })
 );
+
+registerRoute(({url}) => url.origin === 'https://fonts.googleapis.com' || url.origin === 'https://gonts.gstatic.com', new NetworkFirst({
+  cacheName: 'fonts', 
+  plugins: [
+    new ExpirationPlugin({
+      maxAgeSeconds: 60 * 60 * 24 * 356,
+      maxEntries: 30
+    })
+  ]
+})) 
+
+self.addEventListener('install', function(event) {
+  console.log("Install");
+});
+self.addEventListener('activate', function(event) {
+  console.log("Activate");
+});
 
 // This allows the web app to trigger skipWaiting via
 // registration.waiting.postMessage({type: 'SKIP_WAITING'})
